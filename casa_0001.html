@@ -4,64 +4,117 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Tour</title>
+    <title>Virtual Tour with Fixed Navigation</title>
     <link rel="stylesheet" href="https://cdn.pannellum.org/2.5/pannellum.css"/>
     <script type="text/javascript" src="https://cdn.pannellum.org/2.5/pannellum.js"></script>
     <style>
-    body { margin: 0; }
-    #panorama {
-        width: 100vw;
-        height: 100vh;
-    }
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+        #panorama {
+            width: 100vw;
+            height: 100vh;
+        }
+        /* This is the container for our fixed buttons */
+        #controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            padding: 10px 0;
+            box-sizing: border-box;
+            z-index: 1000; /* Ensures controls are on top */
+        }
+        /* Styling for the navigation buttons */
+        .nav-button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            font-size: 14px;
+            color: white;
+            background-color: #333;
+            border: 1px solid #777;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .nav-button:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
 
+<!-- The main container for the Pannellum viewer -->
 <div id="panorama"></div>
 
+<!-- The container where our buttons will be created by JavaScript -->
+<div id="controls"></div>
+
 <script>
-pannellum.viewer('panorama', {
-    // General settings that apply to all scenes
+// --- 1. Define the entire tour configuration ---
+const tourConfig = {
     "default": {
-        "firstScene": "outside", // <-- FIX #1: Start with a valid scene ID
-        "author": "Your Name",
-        "autoLoad": true
+        "firstScene": "scene1",
+        "autoLoad": true,
+        "sceneFadeDuration": 1000 // Smooth transition between scenes
     },
-
     "scenes": {
-        // --- SCENE 1: Outside ---
-        "outside": { // <-- FIX #2: Use a descriptive and unique ID
-            "title": "Lado de fora",
+        "scene1": {
+            "title": "Outside View",
             "type": "equirectangular",
-            "panorama": "https://i.postimg.cc/d0SHSSL3/000.jpg",
-            "hotSpots": [
-                {
-                    "pitch": -10,
-                    "yaw": 110,
-                    "type": "scene",
-                    "text": "Vai para a Sala",
-                    "sceneId": "livingRoom" // <-- FIX #3: Point to the other scene's ID
-                }
-            ]
+            "panorama": "https://i.postimg.cc/d0SHSSL3/000.jpg"
+            // No hotSpots here anymore!
         },
-
-        // --- SCENE 2: Living Room ---
-        "livingRoom": { // <-- FIX #2: Use a descriptive and unique ID
-            "title": "Sala",
+        "scene2": {
+            "title": "Living Room",
             "type": "equirectangular",
-            "panorama": "https://i.postimg.cc/pVjGqCxV/003.jpg",
-            "hotSpots": [
-                {
-                    "pitch": -5,
-                    "yaw": -150,
-                    "type": "scene",
-                    "text": "Volta para fora",
-                    "sceneId": "outside" // <-- FIX #3: Point to the other scene's ID
-                }
-            ]
+            "panorama": "https://i.postimg.cc/pVjGqCxV/003.jpg"
+        },
+        "scene3": {
+            "title": "Another Room",
+            "type": "equirectangular",
+            "panorama": "URL_FOR_YOUR_THIRD_PHOTO.jpg" // <-- REPLACE THIS
         }
     }
-});
+};
+
+// --- 2. Initialize Pannellum and store the viewer object in a variable ---
+const viewer = pannellum.viewer('panorama', tourConfig);
+
+// --- 3. Function to create the navigation buttons ---
+function createNavigationButtons() {
+    const controlsContainer = document.getElementById('controls');
+    const currentSceneId = viewer.getScene(); // Get the ID of the currently visible scene
+
+    // Clear any old buttons
+    controlsContainer.innerHTML = '';
+
+    // Loop through all scenes defined in the configuration
+    for (const sceneId in tourConfig.scenes) {
+        // Only create a button if it's NOT for the current scene
+        if (sceneId !== currentSceneId) {
+            const scene = tourConfig.scenes[sceneId];
+            const button = document.createElement('button');
+            button.className = 'nav-button';
+            button.innerText = `Go to ${scene.title}`; // Set button text from scene title
+
+            // When the button is clicked, call the Pannellum API to load the new scene
+            button.addEventListener('click', function() {
+                viewer.loadScene(sceneId);
+            });
+
+            controlsContainer.appendChild(button);
+        }
+    }
+}
+
+// --- 4. Listen for the 'load' and 'scenechange' events to update the buttons ---
+viewer.on('load', createNavigationButtons);
+viewer.on('scenechange', createNavigationButtons);
+
 </script>
 
 </body>
