@@ -1,3 +1,4 @@
+    
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -22,31 +23,30 @@
 pannellum.viewer('panorama', {
     // General settings that apply to all scenes
     "default": {
-        "firstScene": "000",
+        "firstScene": "outside", // <-- FIX #1: Start with a valid scene ID
         "author": "Your Name",
-        "autoLoad": true // Automatically loads the first scene
+        "autoLoad": true
     },
 
-    // A list of all your panoramic scenes
     "scenes": {
-        // --- SCENE 1: Living Room ---
-        "livingRoom": {
+        // --- SCENE 1: Outside ---
+        "outside": { // <-- FIX #2: Use a descriptive and unique ID
             "title": "Lado de fora",
             "type": "equirectangular",
             "panorama": "https://i.postimg.cc/d0SHSSL3/000.jpg",
             "hotSpots": [
                 {
-                    "pitch": -10,  // Vertical position of the hotspot
-                    "yaw": 110,    // Horizontal position of the hotspot
-                    "type": "scene", // This makes it a navigation hotspot
-                    "text": "Vai para 003", // Tooltip text on hover
-                    "sceneId": "000" // The ID of the scene to link to
+                    "pitch": -10,
+                    "yaw": 110,
+                    "type": "scene",
+                    "text": "Vai para a Sala",
+                    "sceneId": "livingRoom" // <-- FIX #3: Point to the other scene's ID
                 }
             ]
         },
 
-        // --- SCENE 2: Kitchen ---
-        "kitchen": {
+        // --- SCENE 2: Living Room ---
+        "livingRoom": { // <-- FIX #2: Use a descriptive and unique ID
             "title": "Sala",
             "type": "equirectangular",
             "panorama": "https://i.postimg.cc/pVjGqCxV/003.jpg",
@@ -55,8 +55,8 @@ pannellum.viewer('panorama', {
                     "pitch": -5,
                     "yaw": -150,
                     "type": "scene",
-                    "text": "Volta para 000",
-                    "sceneId": "003"
+                    "text": "Volta para fora",
+                    "sceneId": "outside" // <-- FIX #3: Point to the other scene's ID
                 }
             ]
         }
